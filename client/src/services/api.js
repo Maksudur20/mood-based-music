@@ -21,7 +21,6 @@ const LOCAL_TRACKS = {
     { videoId: 'nfWlot6h_JM', title: 'Taylor Swift - Shake It Off', description: 'Pop chart topper', channelTitle: 'Taylor Swift', thumbnailUrl: 'https://i.ytimg.com/vi/nfWlot6h_JM/hqdefault.jpg' }
   ],
   chill: [
-    { videoId: 'jfKfPfyJRdk', title: 'Lofi Hip Hop Radio - Beats to Relax/Study to', description: 'Relaxing lo-fi beats and ambient chill music.', channelTitle: 'Lofi Girl', thumbnailUrl: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg' },
     { videoId: '5qap5aO4i9A', title: 'Lofi Hip Hop Radio - Beats to Sleep/Chill to', description: 'Peaceful lo-fi beats for sleeping and unwinding.', channelTitle: 'Lofi Girl', thumbnailUrl: 'https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg' },
     { videoId: '4xDzrJKXOOY', title: 'Synthwave Radio - Chill & Retro Beats', description: 'Retro synthwave and night drive tunes.', channelTitle: 'Lofi Girl', thumbnailUrl: 'https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg' },
     { videoId: 'DWcJFNfaw9c', title: 'Calm Piano Music - Peaceful Relaxation & Study', description: 'Peaceful piano and acoustic ambient melodies.', channelTitle: 'Relaxing Music', thumbnailUrl: 'https://i.ytimg.com/vi/DWcJFNfaw9c/hqdefault.jpg' },
@@ -30,9 +29,8 @@ const LOCAL_TRACKS = {
   ],
   energetic: [
     { videoId: 'btPJPFnesV4', title: 'Eye of the Tiger - Survivor', description: 'Ultimate workout motivation', channelTitle: 'Survivor', thumbnailUrl: 'https://i.ytimg.com/vi/btPJPFnesV4/hqdefault.jpg' },
-    { videoId: 'YvkW-M_gL0M', title: 'High Energy Gym Workout Music', description: 'Hard bass workout motivation', channelTitle: 'Fitness Music', thumbnailUrl: 'https://i.ytimg.com/vi/YvkW-M_gL0M/hqdefault.jpg' },
-    { videoId: 'K4DyBUG242c', title: 'EDM Party & Workout Hype Anthems', description: 'Festival EDM hype tracks', channelTitle: 'EDM World', thumbnailUrl: 'https://i.ytimg.com/vi/K4DyBUG242c/hqdefault.jpg' },
-    { videoId: 'IcrbM1l_BoI', title: 'Avicii - Wake Me Up', description: 'High energy electronic anthem', channelTitle: 'Avicii', thumbnailUrl: 'https://i.ytimg.com/vi/IcrbM1l_BoI/hqdefault.jpg' }
+    { videoId: 'IcrbM1l_BoI', title: 'Avicii - Wake Me Up', description: 'High energy electronic anthem', channelTitle: 'Avicii', thumbnailUrl: 'https://i.ytimg.com/vi/IcrbM1l_BoI/hqdefault.jpg' },
+    { videoId: 'OPf0YbXqDm0', title: 'Uptown Funk - Mark Ronson ft. Bruno Mars', description: 'Funk & hype rhythms', channelTitle: 'Mark Ronson', thumbnailUrl: 'https://i.ytimg.com/vi/OPf0YbXqDm0/hqdefault.jpg' }
   ],
   sad: [
     { videoId: 'RBumgq5yVrA', title: 'Passenger - Let Her Go', description: 'Acoustic emotional ballad', channelTitle: 'Passenger', thumbnailUrl: 'https://i.ytimg.com/vi/RBumgq5yVrA/hqdefault.jpg' },
@@ -42,7 +40,6 @@ const LOCAL_TRACKS = {
   ],
   focus: [
     { videoId: 'DWcJFNfaw9c', title: 'Deep Focus Instrumental Study Music', description: 'Instrumental piano for maximum concentration.', channelTitle: 'Study Focus', thumbnailUrl: 'https://i.ytimg.com/vi/DWcJFNfaw9c/hqdefault.jpg' },
-    { videoId: 'jfKfPfyJRdk', title: 'Lofi Study Beats for Deep Work', description: 'Lo-fi beats for reading & programming.', channelTitle: 'Lofi Girl', thumbnailUrl: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg' },
     { videoId: '3JZ_D3ELwOQ', title: 'Alpha Waves Brainwave Music for Focus', description: 'Binaural beats for mental clarity.', channelTitle: 'Focus Music', thumbnailUrl: 'https://i.ytimg.com/vi/3JZ_D3ELwOQ/hqdefault.jpg' }
   ],
   romantic: [
@@ -50,8 +47,8 @@ const LOCAL_TRACKS = {
     { videoId: '450p7goxZqg', title: 'John Legend - All of Me', description: 'Piano love ballad', channelTitle: 'John Legend', thumbnailUrl: 'https://i.ytimg.com/vi/450p7goxZqg/hqdefault.jpg' }
   ],
   party: [
-    { videoId: 'K4DyBUG242c', title: 'EDM Party Club Anthems Mix', description: 'High energy dance floor bangers', channelTitle: 'EDM World', thumbnailUrl: 'https://i.ytimg.com/vi/K4DyBUG242c/hqdefault.jpg' },
-    { videoId: '5dbM_V01dNE', title: 'Daft Punk - Get Lucky', description: 'Disco funk dance hit', channelTitle: 'Daft Punk', thumbnailUrl: 'https://i.ytimg.com/vi/5dbM_V01dNE/hqdefault.jpg' }
+    { videoId: '5dbM_V01dNE', title: 'Daft Punk - Get Lucky', description: 'Disco funk dance hit', channelTitle: 'Daft Punk', thumbnailUrl: 'https://i.ytimg.com/vi/5dbM_V01dNE/hqdefault.jpg' },
+    { videoId: 'eVTXPUfcB70', title: 'Calvin Harris - Summer', description: 'Summer dance festival anthem', channelTitle: 'Calvin Harris', thumbnailUrl: 'https://i.ytimg.com/vi/eVTXPUfcB70/hqdefault.jpg' }
   ],
   relaxed: [
     { videoId: '5qap5aO4i9A', title: 'Gentle Sleep & Relaxation Music', description: 'Calming sounds to unwind and sleep.', channelTitle: 'Relaxing Music', thumbnailUrl: 'https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg' },
