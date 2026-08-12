@@ -1,5 +1,16 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
+const DEFAULT_MOODS = [
+  { id: '1', name: 'Happy', icon: '😊', description: 'Upbeat and cheerful tracks to boost your day', gradient_from: '#f59e0b', gradient_to: '#ef4444' },
+  { id: '2', name: 'Chill', icon: '🎧', description: 'Relaxing lo-fi and ambient sounds', gradient_from: '#6366f1', gradient_to: '#a855f7' },
+  { id: '3', name: 'Energetic', icon: '⚡', description: 'High-energy workout and hype beats', gradient_from: '#ef4444', gradient_to: '#ec4899' },
+  { id: '4', name: 'Sad', icon: '🌧️', description: 'Melancholic and emotional melodies', gradient_from: '#3b82f6', gradient_to: '#6366f1' },
+  { id: '5', name: 'Focus', icon: '🎯', description: 'Instrumental music for study and deep focus', gradient_from: '#10b981', gradient_to: '#06b6d4' },
+  { id: '6', name: 'Romantic', icon: '💖', description: 'Love songs and soft acoustics', gradient_from: '#ec4899', gradient_to: '#f43f5e' },
+  { id: '7', name: 'Party', icon: '🎉', description: 'Dance, EDM and club anthems', gradient_from: '#8b5cf6', gradient_to: '#d946ef' },
+  { id: '8', name: 'Relaxed', icon: '🌙', description: 'Calming sounds to unwind and sleep', gradient_from: '#0284c7', gradient_to: '#6366f1' }
+];
+
 export const getMoods = async (req, res) => {
   try {
     const { data: moods, error } = await supabaseAdmin
@@ -8,10 +19,14 @@ export const getMoods = async (req, res) => {
       .eq('status', 'active')
       .order('name');
 
-    if (error) throw error;
+    if (error || !moods || moods.length === 0) {
+      console.warn('Supabase query error or empty moods, returning default moods:', error?.message);
+      return res.json({ moods: DEFAULT_MOODS });
+    }
     return res.json({ moods });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('getMoods error:', err);
+    return res.json({ moods: DEFAULT_MOODS });
   }
 };
 
@@ -24,7 +39,11 @@ export const getMoodById = async (req, res) => {
       .eq('id', id)
       .single();
 
-    if (error) return res.status(404).json({ error: 'Mood not found' });
+    if (error || !mood) {
+      const fallbackMood = DEFAULT_MOODS.find(m => m.id === id || m.name.toLowerCase() === id.toLowerCase());
+      if (fallbackMood) return res.json({ mood: fallbackMood });
+      return res.status(404).json({ error: 'Mood not found' });
+    }
     return res.json({ mood });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -60,37 +79,32 @@ export const createMood = async (req, res) => {
   }
 };
 
-export const addKeywordToMood = async (req, res) => {
+export const updateMood = async (req, res) => {
   try {
     const { id } = req.params;
-    const { keyword } = req.body;
-    if (!keyword) {
-      return res.status(400).json({ error: 'Keyword is required.' });
-    }
+    const { name, icon, description, gradient_from, gradient_to, status } = req.body;
 
-    const { data: newKw, error } = await supabaseAdmin
-      .from('mood_keywords')
-      .insert({ mood_id: id, keyword })
+    const { data: mood, error } = await supabaseAdmin
+      .from('moods')
+      .update({ name, icon, description, gradient_from, gradient_to, status })
+      .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return res.status(201).json({ message: 'Keyword added successfully', keyword: newKw });
+    return res.json({ message: 'Mood updated successfully', mood });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 };
 
-export const deleteKeyword = async (req, res) => {
+export const deleteMood = async (req, res) => {
   try {
-    const { keywordId } = req.params;
-    const { error } = await supabaseAdmin
-      .from('mood_keywords')
-      .delete()
-      .eq('id', keywordId);
+    const { id } = req.params;
+    const { error } = await supabaseAdmin.from('moods').delete().eq('id', id);
 
     if (error) throw error;
-    return res.json({ message: 'Keyword deleted successfully' });
+    return res.json({ message: 'Mood deleted successfully' });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

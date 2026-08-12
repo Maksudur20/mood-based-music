@@ -10,8 +10,43 @@ const YOUTUBE_BASE_URL = 'https://www.googleapis.com/youtube/v3';
 const cache = new Map();
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes cache
 
+const FALLBACK_TRACKS = [
+  {
+    videoId: 'jfKfPfyJRdk',
+    title: 'Lofi Hip Hop Radio - Beats to Relax/Study to',
+    description: 'Relaxing lo-fi beats and ambient chill music.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg',
+    channelTitle: 'Lofi Girl',
+    publishedAt: new Date().toISOString()
+  },
+  {
+    videoId: 'ZbZSe6N_BXs',
+    title: 'Happy - Pharrell Williams (Official Music Video)',
+    description: 'Upbeat and feel-good music video.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/ZbZSe6N_BXs/hqdefault.jpg',
+    channelTitle: 'Pharrell Williams',
+    publishedAt: new Date().toISOString()
+  },
+  {
+    videoId: '4xDzrJKXOOY',
+    title: 'synthwave radio - chill / retro beats',
+    description: 'Retro synthwave and night drive tunes.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg',
+    channelTitle: 'Lofi Girl',
+    publishedAt: new Date().toISOString()
+  },
+  {
+    videoId: 'DWcJFNfaw9c',
+    title: 'Calm Piano Music 24/7 for Peaceful Relaxation & Sleep',
+    description: 'Peaceful piano and acoustic melodies.',
+    thumbnailUrl: 'https://i.ytimg.com/vi/DWcJFNfaw9c/hqdefault.jpg',
+    channelTitle: 'Relaxing Music',
+    publishedAt: new Date().toISOString()
+  }
+];
+
 export const searchYouTube = async (query, maxResults = 15) => {
-  if (!query) return [];
+  if (!query) return FALLBACK_TRACKS;
 
   const cacheKey = `search:${query.trim().toLowerCase()}:${maxResults}`;
   const cached = cache.get(cacheKey);
@@ -20,8 +55,8 @@ export const searchYouTube = async (query, maxResults = 15) => {
   }
 
   if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY.includes('your_youtube_api_key')) {
-    console.warn('⚠️ Invalid or missing YOUTUBE_API_KEY!');
-    throw new Error('YouTube API Key is missing or invalid.');
+    console.warn('⚠️ YOUTUBE_API_KEY is not configured. Returning fallback curated tracks.');
+    return FALLBACK_TRACKS;
   }
 
   try {
@@ -30,7 +65,7 @@ export const searchYouTube = async (query, maxResults = 15) => {
         part: 'snippet',
         q: `${query} music`,
         type: 'video',
-        videoCategory: '10', // 10 is Music category in YouTube API
+        videoCategory: '10',
         maxResults,
         key: YOUTUBE_API_KEY
       }
@@ -46,17 +81,13 @@ export const searchYouTube = async (query, maxResults = 15) => {
       publishedAt: item.snippet.publishedAt
     }));
 
+    if (formattedVideos.length === 0) return FALLBACK_TRACKS;
+
     cache.set(cacheKey, { data: formattedVideos, timestamp: Date.now() });
     return formattedVideos;
   } catch (err) {
-    const apiError = err.response?.data?.error?.message || err.message;
-    console.error('YouTube API Error:', apiError);
-
-    // If quota exceeded or error, fallback gracefully
-    if (err.response?.status === 403) {
-      throw new Error('YouTube API quota limit reached. Please try again later.');
-    }
-    throw new Error(`YouTube Search Error: ${apiError}`);
+    console.warn('YouTube API Error or Quota limit, serving fallback music tracks:', err.message);
+    return FALLBACK_TRACKS;
   }
 };
 
@@ -67,6 +98,20 @@ export const getVideoDetails = async (videoId) => {
   const cached = cache.get(cacheKey);
   if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
     return cached.data;
+  }
+
+  if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY.includes('your_youtube_api_key')) {
+    return {
+      videoId,
+      title: 'YouTube Track',
+      description: 'Music track',
+      thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+      channelTitle: 'MoodHarmonies',
+      duration: 'PT3M45S',
+      viewCount: '100000',
+      likeCount: '5000',
+      publishedAt: new Date().toISOString()
+    };
   }
 
   try {
@@ -97,6 +142,12 @@ export const getVideoDetails = async (videoId) => {
     return videoData;
   } catch (err) {
     console.error('YouTube Video Details Error:', err.message);
-    return null;
+    return {
+      videoId,
+      title: 'YouTube Music Track',
+      description: 'Music track',
+      thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+      channelTitle: 'MoodHarmonies'
+    };
   }
 };
