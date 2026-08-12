@@ -9,6 +9,9 @@ export const HomePage = ({ onOpenPlaylistModal, onOpenAuth }) => {
   const [selectedMood, setSelectedMood] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     fetchMoods();
@@ -30,8 +33,10 @@ export const HomePage = ({ onOpenPlaylistModal, onOpenAuth }) => {
   const handleSelectMood = async (mood) => {
     setSelectedMood(mood);
     setLoading(true);
+    setPage(1);
+    setHasMore(true);
     try {
-      const res = await api.get(`/youtube/mood/${encodeURIComponent(mood.name)}`);
+      const res = await api.get(`/youtube/mood/${encodeURIComponent(mood.name)}?page=1`);
       setRecommendations(res.data.results || []);
     } catch (err) {
       console.error('Fetch recommendations error:', err);
@@ -40,8 +45,43 @@ export const HomePage = ({ onOpenPlaylistModal, onOpenAuth }) => {
     }
   };
 
+  const loadMoreTracks = async () => {
+    if (!selectedMood || loading || loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const res = await api.get(`/youtube/mood/${encodeURIComponent(selectedMood.name)}?page=${nextPage}`);
+      const newTracks = res.data.results || [];
+      if (newTracks.length === 0) {
+        setHasMore(false);
+      } else {
+        setRecommendations(prev => {
+          const existingIds = new Set(prev.map(t => t.videoId));
+          const uniqueNew = newTracks.filter(t => !existingIds.has(t.videoId));
+          return [...prev, ...uniqueNew];
+        });
+        setPage(nextPage);
+      }
+    } catch (err) {
+      console.error('Error loading more tracks:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 350) {
+        loadMoreTracks();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [selectedMood, page, loading, loadingMore, hasMore]);
+
   return (
-    <div className="space-y-10 pb-12">
+    <div className="space-y-10 pb-16">
       
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl p-8 sm:p-12 border border-slate-800/80 bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-purple-950/80 glass-panel shadow-2xl">
@@ -59,15 +99,18 @@ export const HomePage = ({ onOpenPlaylistModal, onOpenAuth }) => {
               How are you <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">feeling</span> today?
             </h1>
 
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+            <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
               Select your current emotional state and let our recommendation system curate perfect YouTube music tracks matched to your vibe.
             </p>
           </div>
 
-          {/* Glowing Brand Logo Badge */}
-          <div className="relative flex-shrink-0 group hidden sm:block">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl blur-xl opacity-60 group-hover:opacity-90 transition-opacity" />
-            <img src="/logo.svg" alt="MoodHarmonies" className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-3xl shadow-2xl transition-transform duration-300 group-hover:scale-105" />
+          {/* Aesthetic Centered Logo Graphic Badge */}
+          <div className="hidden sm:flex items-center justify-center w-36 h-36 rounded-3xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-1 shadow-2xl shadow-purple-500/40 shrink-0 transform hover:rotate-3 hover:scale-105 transition-all duration-300">
+            <div className="w-full h-full bg-slate-950/80 backdrop-blur-xl rounded-[22px] flex items-center justify-center">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <Music className="w-12 h-12 text-white stroke-[2.2]" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -75,64 +118,85 @@ export const HomePage = ({ onOpenPlaylistModal, onOpenAuth }) => {
       {/* Mood Selector Grid */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-indigo-400" />
             <span>Select Your Mood</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {moods.slice(0, 10).map((m) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {moods.map((mood) => (
             <MoodCard
-              key={m.id}
-              mood={m}
-              selected={selectedMood?.id === m.id}
-              onClick={handleSelectMood}
+              key={mood.id}
+              mood={mood}
+              isSelected={selectedMood?.id === mood.id}
+              onSelect={handleSelectMood}
             />
           ))}
         </div>
       </section>
 
-      {/* Recommended Music Section */}
+      {/* Recommended Tracks Section */}
       <section className="space-y-4">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{selectedMood?.icon || '🎵'}</span>
-            <div>
-              <h2 className="text-xl font-bold text-white">
-                {selectedMood ? `${selectedMood.name} Recommendations` : 'Recommended Music'}
-              </h2>
-              <p className="text-xs text-slate-400">Handpicked tracks matching your selected mood</p>
-            </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+              {selectedMood ? (
+                <span>{selectedMood.icon} {selectedMood.name} Recommendations</span>
+              ) : (
+                <>
+                  <Music className="w-5 h-5 text-purple-400" />
+                  <span>Recommended Music</span>
+                </>
+              )}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+              {selectedMood?.description || 'Handpicked tracks matching your selected mood'}
+            </p>
           </div>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-56 rounded-2xl bg-slate-900/60 border border-slate-800" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="glass-card rounded-2xl p-3.5 space-y-3 animate-pulse">
+                <div className="aspect-video bg-slate-800/80 rounded-xl" />
+                <div className="h-4 bg-slate-800/80 rounded w-3/4" />
+                <div className="h-3 bg-slate-800/80 rounded w-1/2" />
+              </div>
             ))}
           </div>
-        ) : recommendations.length === 0 ? (
-          <div className="text-center py-12 glass-panel rounded-2xl">
-            <Music className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400 text-sm">No recommendations found for this mood.</p>
-          </div>
+        ) : recommendations.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {recommendations.map((track) => (
+                <MusicCard
+                  key={track.videoId}
+                  track={track}
+                  trackList={recommendations}
+                  onOpenPlaylistModal={onOpenPlaylistModal}
+                  onOpenAuth={onOpenAuth}
+                />
+              ))}
+            </div>
+
+            {/* Glowing Infinite Scroll Loading Spinner */}
+            {loadingMore && (
+              <div className="flex items-center justify-center py-8">
+                <div className="flex items-center gap-3 px-5 py-2.5 rounded-full glass-panel border border-indigo-500/30 text-indigo-300 text-sm font-semibold animate-pulse shadow-lg shadow-indigo-500/20">
+                  <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                  <span>Loading more music for your vibe...</span>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {recommendations.map((track) => (
-              <MusicCard
-                key={track.videoId}
-                track={track}
-                trackList={recommendations}
-                onOpenPlaylistModal={onOpenPlaylistModal}
-                onOpenAuth={onOpenAuth}
-              />
-            ))}
+          <div className="text-center py-12 glass-panel rounded-2xl border border-slate-800">
+            <Music className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+            <p className="text-slate-400 font-medium">No recommendations found for this mood.</p>
           </div>
         )}
       </section>
-
     </div>
   );
 };

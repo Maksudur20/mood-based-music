@@ -1,4 +1,4 @@
-import { searchYouTube, getVideoDetails } from '../services/youtubeService.js';
+import { searchYouTube } from '../services/youtubeService.js';
 import { supabaseAdmin } from '../config/supabase.js';
 
 export const searchMusic = async (req, res) => {
@@ -8,7 +8,7 @@ export const searchMusic = async (req, res) => {
       return res.status(400).json({ error: 'Search query parameter "q" is required.' });
     }
 
-    const results = await searchYouTube(q, limit ? parseInt(limit, 10) : 15);
+    const results = await searchYouTube(q, limit ? parseInt(limit, 10) : 20);
 
     // Save search history if user is authenticated
     if (req.user) {
@@ -27,56 +27,34 @@ export const searchMusic = async (req, res) => {
 export const getMoodRecommendations = async (req, res) => {
   try {
     const { mood } = req.params;
+    const page = req.query.page ? parseInt(req.query.page, 10) : 1;
+
     if (!mood) {
       return res.status(400).json({ error: 'Mood parameter is required.' });
     }
 
-    // Find mood in database
-    const { data: moodData } = await supabaseAdmin
-      .from('moods')
-      .select('id, name, gradient_from, gradient_to')
-      .ilike('name', mood)
-      .single();
+    // Varied search terms per page for infinite scroll load
+    const SEARCH_VARIATIONS = [
+      `${mood} music playlist 2026`,
+      `${mood} top hits & songs`,
+      `${mood} viral music mix`,
+      `${mood} acoustic & live session`,
+      `${mood} remix & extended playlist`,
+      `${mood} mood vibes radio`
+    ];
 
-    let queryKeyword = `${mood} music playlist`;
+    const currentQuery = SEARCH_VARIATIONS[(page - 1) % SEARCH_VARIATIONS.length];
 
-    if (moodData) {
-      // Fetch keywords associated with mood
-      const { data: keywords } = await supabaseAdmin
-        .from('mood_keywords')
-        .select('keyword')
-        .eq('mood_id', moodData.id);
-
-      if (keywords && keywords.length > 0) {
-        // Pick a random keyword from the mood's keyword pool
-        const randomKw = keywords[Math.floor(Math.random() * keywords.length)];
-        queryKeyword = randomKw.keyword;
-      }
-    }
-
-    const results = await searchYouTube(queryKeyword, 20);
+    const results = await searchYouTube(currentQuery, 15);
 
     return res.json({
-      mood: moodData?.name || mood,
-      moodId: moodData?.id || null,
-      gradient: { from: moodData?.gradient_from, to: moodData?.gradient_to },
-      queryKeyword,
+      mood,
+      page,
+      count: results.length,
       results
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
-export const getVideoInfo = async (req, res) => {
-  try {
-    const { videoId } = req.params;
-    const video = await getVideoDetails(videoId);
-    if (!video) {
-      return res.status(404).json({ error: 'Video not found.' });
-    }
-    return res.json({ video });
-  } catch (err) {
+    console.error('getMoodRecommendations error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 };
