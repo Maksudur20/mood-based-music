@@ -45,3 +45,11 @@ Follow the step-by-step setup guide in [**SETUP.md**](file:///d:/Mood-Based%20Mu
 ## 📖 Complete Setup Documentation
 
 For detailed instructions on API keys, environment variables, and troubleshooting, read [**SETUP.md**](file:///d:/Mood-Based%20Music/SETUP.md).
+
+cd client
+>> npm.cmd run dev
+
+cd server
+>> npm.cmd run dev
+
+taskkill /IM node.exe /F
