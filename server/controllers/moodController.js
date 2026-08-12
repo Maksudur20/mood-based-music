@@ -122,3 +122,33 @@ export const deleteMood = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+
+export const addKeywordToMood = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { keyword } = req.body;
+    if (!keyword) return res.status(400).json({ error: 'Keyword required' });
+
+    const { data, error } = await supabaseAdmin
+      .from('mood_keywords')
+      .insert({ mood_id: id, keyword })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return res.status(201).json({ keyword: data });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+export const deleteKeyword = async (req, res) => {
+  try {
+    const { keywordId } = req.params;
+    const { error } = await supabaseAdmin.from('mood_keywords').delete().eq('id', keywordId);
+    if (error) throw error;
+    return res.json({ message: 'Keyword deleted successfully' });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
