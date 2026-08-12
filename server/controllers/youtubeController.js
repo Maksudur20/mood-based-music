@@ -1,4 +1,4 @@
-import { searchYouTube } from '../services/youtubeService.js';
+import { searchYouTube, getVideoDetails } from '../services/youtubeService.js';
 import { supabaseAdmin } from '../config/supabase.js';
 
 export const searchMusic = async (req, res) => {
@@ -55,6 +55,19 @@ export const getMoodRecommendations = async (req, res) => {
     });
   } catch (err) {
     console.error('getMoodRecommendations error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+export const getVideoInfo = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    if (!videoId) {
+      return res.status(400).json({ error: 'Video ID is required.' });
+    }
+    const video = await getVideoDetails(videoId);
+    return res.json({ video });
+  } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 };
