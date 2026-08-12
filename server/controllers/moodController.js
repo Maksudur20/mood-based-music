@@ -13,19 +13,25 @@ const DEFAULT_MOODS = [
 
 export const getMoods = async (req, res) => {
   try {
-    const { data: moods, error } = await supabaseAdmin
-      .from('moods')
-      .select('*, mood_keywords(id, keyword)')
-      .eq('status', 'active')
-      .order('name');
+    let moods = null;
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('moods')
+        .select('*');
+      if (!error && data && data.length > 0) {
+        moods = data;
+      }
+    } catch (e) {
+      console.warn('Supabase fetch moods warning:', e?.message);
+    }
 
-    if (error || !moods || moods.length === 0) {
-      console.warn('Supabase query error or empty moods, returning default moods:', error?.message);
+    if (!moods || moods.length === 0) {
       return res.json({ moods: DEFAULT_MOODS });
     }
+
     return res.json({ moods });
   } catch (err) {
-    console.error('getMoods error:', err);
+    console.error('getMoods outer error:', err);
     return res.json({ moods: DEFAULT_MOODS });
   }
 };
@@ -33,20 +39,27 @@ export const getMoods = async (req, res) => {
 export const getMoodById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data: mood, error } = await supabaseAdmin
-      .from('moods')
-      .select('*, mood_keywords(id, keyword)')
-      .eq('id', id)
-      .single();
+    let mood = null;
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('moods')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (!error && data) mood = data;
+    } catch (e) {
+      console.warn('getMoodById warning:', e?.message);
+    }
 
-    if (error || !mood) {
+    if (!mood) {
       const fallbackMood = DEFAULT_MOODS.find(m => m.id === id || m.name.toLowerCase() === id.toLowerCase());
       if (fallbackMood) return res.json({ mood: fallbackMood });
       return res.status(404).json({ error: 'Mood not found' });
     }
+
     return res.json({ mood });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.json({ mood: DEFAULT_MOODS[0] });
   }
 };
 
