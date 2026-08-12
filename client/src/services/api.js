@@ -132,6 +132,16 @@ const api = {
 
     if (cleanUrl.includes('/youtube/search') || cleanUrl.includes('/youtube')) {
       const allTracks = Object.values(LOCAL_TRACKS).flat();
+      const searchQuery = (url.split('q=')[1] || '').split('&')[0].toLowerCase();
+      if (searchQuery) {
+        const decodedQuery = decodeURIComponent(searchQuery);
+        const filtered = allTracks.filter(t => 
+          t.title.toLowerCase().includes(decodedQuery) || 
+          t.channelTitle.toLowerCase().includes(decodedQuery) ||
+          t.description.toLowerCase().includes(decodedQuery)
+        );
+        return { data: { count: filtered.length, results: filtered.length > 0 ? filtered : allTracks } };
+      }
       return { data: { count: allTracks.length, results: allTracks } };
     }
 
