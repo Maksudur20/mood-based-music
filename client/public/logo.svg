@@ -1,0 +1,16 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="36" fill="url(#mood_grad)"/>
+  <g transform="translate(-3, 4.5)">
+    <ellipse cx="44" cy="84" rx="14" ry="11" transform="rotate(-15 44 84)" stroke="white" stroke-width="5" fill="none" />
+    <ellipse cx="90" cy="72" rx="14" ry="11" transform="rotate(-15 90 72)" stroke="white" stroke-width="5" fill="none" />
+    <path d="M56 81V36L102 24V69" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <path d="M56 48L102 36" stroke="white" stroke-width="5" stroke-linecap="round" fill="none" />
+  </g>
+  <defs>
+    <linearGradient id="mood_grad" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="0.5" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+  </defs>
+</svg>
