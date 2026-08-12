@@ -6,8 +6,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+const defaultBaseURL = import.meta.env.PROD ? '/api' : 'http://localhost:5000/api';
+const configuredURL = import.meta.env.VITE_API_URL;
+const baseURL = (configuredURL && !configuredURL.includes('localhost')) ? configuredURL : defaultBaseURL;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+  baseURL
 });
 
 // Interceptor to attach Supabase session JWT to requests
