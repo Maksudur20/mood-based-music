@@ -12,6 +12,30 @@
       "destination": "/api/youtube.js"
     },
     {
+      "source": "/api/history/(.*)",
+      "destination": "/api/history.js"
+    },
+    {
+      "source": "/api/history",
+      "destination": "/api/history.js"
+    },
+    {
+      "source": "/api/favorites/(.*)",
+      "destination": "/api/favorites.js"
+    },
+    {
+      "source": "/api/favorites",
+      "destination": "/api/favorites.js"
+    },
+    {
+      "source": "/api/playlists/(.*)",
+      "destination": "/api/playlists.js"
+    },
+    {
+      "source": "/api/playlists",
+      "destination": "/api/playlists.js"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/index.js"
     },
