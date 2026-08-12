@@ -8,9 +8,19 @@ export const PlayerBar = () => {
   const [showFullModal, setShowFullModal] = useState(false);
   const iframeRef = useRef(null);
   const ytPlayerRef = useRef(null);
+  const isReadyRef = useRef(false);
+
+  useEffect(() => {
+    isReadyRef.current = false;
+    const timer = setTimeout(() => {
+      isReadyRef.current = true;
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [currentTrack?.videoId]);
 
   // Helper to send postMessage command or direct YT method call to YouTube iframe
   const sendIframeCommand = useCallback((func, args = '') => {
+    if (!isReadyRef.current) return;
     if (ytPlayerRef.current && typeof ytPlayerRef.current[func] === 'function') {
       try {
         ytPlayerRef.current[func](args);
