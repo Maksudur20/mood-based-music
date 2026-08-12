@@ -1,20 +1,30 @@
 import React from 'react';
 import { Play } from 'lucide-react';
 
-export const MoodCard = ({ mood, onClick, selected = false }) => {
+export const MoodCard = ({ mood, onClick, onSelect, selected, isSelected }) => {
   const { name, icon, description, gradient_from = '#6366f1', gradient_to = '#a855f7' } = mood;
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick(mood);
+    } else if (onSelect) {
+      onSelect(mood);
+    }
+  };
+
+  const activeSelected = Boolean(selected || isSelected);
 
   return (
     <button
-      onClick={() => onClick(mood)}
+      onClick={handleClick}
       className={`group relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-300 transform hover:-translate-y-1.5 focus:outline-none w-full ${
-        selected
+        activeSelected
           ? 'ring-2 ring-indigo-400 shadow-2xl scale-[1.02]'
           : 'hover:shadow-xl'
       }`}
       style={{
         background: `linear-gradient(135deg, ${gradient_from}22 0%, ${gradient_to}33 100%)`,
-        borderColor: selected ? gradient_from : `${gradient_from}44`,
+        borderColor: activeSelected ? gradient_from : `${gradient_from}44`,
         borderWidth: '1px'
       }}
     >
@@ -38,9 +48,11 @@ export const MoodCard = ({ mood, onClick, selected = false }) => {
           <h3 className="text-xl font-bold text-white tracking-wide group-hover:text-indigo-200 transition-colors">
             {name}
           </h3>
-          <p className="text-xs text-slate-300 mt-1 line-clamp-2 leading-relaxed">
-            {description || `Discover curated ${name.toLowerCase()} music recommendations.`}
-          </p>
+          {description && (
+            <p className="text-xs text-slate-300/80 line-clamp-2 mt-1 font-normal">
+              {description}
+            </p>
+          )}
         </div>
       </div>
     </button>
